@@ -57,6 +57,9 @@ impl AgentNotification {
         WindowOptions {
             window_bounds: Some(WindowBounds::Windowed(bounds)),
             titlebar: None,
+            macos_borderless: cfg!(target_os = "macos"),
+            is_resizable: false,
+            is_minimizable: false,
             focus: false,
             show: true,
             kind: WindowKind::PopUp,
@@ -119,7 +122,7 @@ impl Render for AgentNotification {
             .text_ui(cx)
             .font(ui_font)
             .border_color(cx.theme().colors().border)
-            .rounded_xl()
+            .rounded_none()
             .child(
                 h_flex()
                     .items_start()

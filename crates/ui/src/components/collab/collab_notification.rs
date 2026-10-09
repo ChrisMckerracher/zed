@@ -41,6 +41,7 @@ impl RenderOnce for CollabNotification {
             .justify_between()
             .overflow_hidden()
             .elevation_3(cx)
+            .rounded_none()
             .gap_1()
             .child(
                 h_flex()

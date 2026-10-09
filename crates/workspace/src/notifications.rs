@@ -341,6 +341,7 @@ impl Render for LanguageServerPrompt {
             .w_full()
             .max_h(vh(0.8, window))
             .elevation_3(cx)
+            .rounded_none()
             .overflow_y_scroll()
             .track_scroll(&self.scroll_handle)
             .on_modifiers_changed(cx.listener(|_, _, _, cx| cx.notify()))
@@ -1169,6 +1170,7 @@ pub mod simple_message_notification {
                         .p_3()
                         .gap_2()
                         .elevation_3(cx)
+                        .rounded_none()
                         .child(
                             h_flex()
                                 .gap_4()

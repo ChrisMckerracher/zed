@@ -106,6 +106,7 @@ impl RenderOnce for AnnouncementToast {
             .relative()
             .w_full()
             .elevation_3(cx)
+            .rounded_none()
             .when_some(illustration, |this, i| this.child(i))
             .child(
                 v_flex()

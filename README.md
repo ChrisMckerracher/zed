@@ -1,7 +1,7 @@
 # Zed
 
 This fork adds optional square, borderless macOS windows on the
-`macos-borderless` branch. Build this branch, then add the following to Zed's
+`macos-borderless-stable` branch. Build this branch, then add the following to Zed's
 user settings and reopen the window:
 
 ```json
@@ -21,6 +21,10 @@ the current desktop, also set `"fullscreen_mode": "simple"`.
 
 Build instructions are linked below. A development check that uses runtime
 Metal shaders is `cargo check -p zed --features gpui_platform/runtime_shaders`.
+
+In-app notification surfaces have square corners in this branch. The built-in
+agent auto-approves tools by default, while retaining sandbox restrictions and
+explicit deny/confirm rules.
 
 ---
 
