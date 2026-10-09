@@ -19,7 +19,7 @@ use std::{
 };
 use ui::{Button, ButtonStyle, Label, prelude::*};
 use util::ResultExt;
-use workspace::client_side_decorations;
+use workspace::{WorkspaceSettings, client_side_decorations};
 
 use super::audio_input_output_setup::render_audio_device_dropdown;
 use crate::{SettingsUiFile, update_settings_file};
@@ -34,7 +34,9 @@ pub struct AudioTestWindow {
 
 impl AudioTestWindow {
     pub fn new(cx: &mut Context<Self>) -> Self {
-        let title_bar = if !cfg!(target_os = "macos") {
+        let title_bar = if !cfg!(target_os = "macos")
+            || WorkspaceSettings::get_global(cx).hide_window_decorations
+        {
             Some(cx.new(|cx| PlatformTitleBar::new("audio-test-title-bar", cx)))
         } else {
             None
@@ -213,7 +215,10 @@ impl Render for AudioTestWindow {
             .track_focus(&self.focus_handle)
             .size_full()
             .p_4()
-            .when(cfg!(target_os = "macos"), |this| this.pt_10())
+            .when(
+                cfg!(target_os = "macos") && !window.is_macos_borderless(),
+                |this| this.pt_10(),
+            )
             .gap_4()
             .bg(cx.theme().colors().editor_background)
             .child(
@@ -290,6 +295,10 @@ pub fn open_audio_test_window(_window: &mut Window, cx: &mut App) {
                 appears_transparent: true,
                 traffic_light_position: Some(gpui::point(px(12.0), px(12.0))),
             }),
+            macos_borderless: cfg!(target_os = "macos")
+                && WorkspaceSettings::get_global(cx).hide_window_decorations,
+            app_owns_titlebar_drag: cfg!(target_os = "macos")
+                && WorkspaceSettings::get_global(cx).hide_window_decorations,
             focus: true,
             show: true,
             is_movable: true,

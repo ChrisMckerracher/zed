@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Package this stable fork using resources from the matching official app.
+# Usage: script/bundle-personal-mac /path/to/official/Zed.app
+set -euo pipefail
+cd "$(dirname "$0")/.."
+base_app=${1:?Pass the matching official Zed.app (a backup is fine)}
+output_app="$(pwd)/target/personal/Zed.app"
+version=$(sed -n 's/^version = "\([^"]*\)"/\1/p' crates/zed/Cargo.toml | head -n 1)
+base_version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$base_app/Contents/Info.plist")
+[[ "$version" = "$base_version" ]] || { echo "Source and base app versions must match" >&2; exit 1; }
+[[ ! -e "$output_app" ]] || { echo "Output already exists: $output_app" >&2; exit 1; }
+[[ -s assets/licenses.md ]] || { echo "Run script/generate-licenses first" >&2; exit 1; }
+for binary in zed cli; do
+    [[ -x "target/release-fast/$binary" ]] || { echo "Build zed and cli first" >&2; exit 1; }
+done
+mkdir -p "$(dirname "$output_app")"
+ditto "$base_app" "$output_app"
+for binary in zed cli; do
+    cp "target/release-fast/$binary" "$output_app/Contents/MacOS/$binary"
+    strip -S "$output_app/Contents/MacOS/$binary"
+done
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(date +%Y%m%d.%H%M%S)" "$output_app/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Add :ZedForkCommit string $(git rev-parse HEAD)" "$output_app/Contents/Info.plist"
+codesign --force --deep --sign - --entitlements crates/zed/resources/zed.entitlements "$output_app"
+codesign --verify --deep --strict "$output_app"
+echo "Built: $output_app"

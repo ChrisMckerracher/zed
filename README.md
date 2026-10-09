@@ -22,6 +22,18 @@ the current desktop, also set `"fullscreen_mode": "simple"`.
 Build instructions are linked below. A development check that uses runtime
 Metal shaders is `cargo check -p zed --features gpui_platform/runtime_shaders`.
 
+To package a personal build without the full Xcode Metal toolchain:
+
+```sh
+script/generate-licenses
+ZED_BUNDLE=true ZED_RELEASE_CHANNEL=stable RELEASE_VERSION=1.23.2 cargo build --profile release-fast --config 'profile.release-fast.debug=0' -p zed -p cli --features gpui_platform/runtime_shaders
+script/bundle-personal-mac /path/to/official/Zed.app
+```
+
+The base app must match the source version. Packaging preserves its bundled Git,
+icons, and macOS metadata, replaces the editor and CLI, and signs the resulting
+app locally. Turn off official auto-updates in user settings to retain the fork.
+
 In-app notification surfaces have square corners in this branch. The built-in
 agent auto-approves tools by default, while retaining sandbox restrictions and
 explicit deny/confirm rules.

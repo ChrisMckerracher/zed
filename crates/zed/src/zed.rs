@@ -1616,7 +1616,10 @@ fn open_about_window(cx: &mut App) {
                     .bg(cx.theme().colors().editor_background)
                     .text_color(cx.theme().colors().text)
                     .p_4()
-                    .when(cfg!(target_os = "macos"), |this| this.pt_10())
+                    .when(
+                        cfg!(target_os = "macos") && !window.is_macos_borderless(),
+                        |this| this.pt_10(),
+                    )
                     .gap_4()
                     .text_center()
                     .justify_between()
@@ -1625,6 +1628,11 @@ fn open_about_window(cx: &mut App) {
                             .w_full()
                             .gap_2()
                             .items_center()
+                            .when(window.is_macos_borderless(), |this| {
+                                this.on_mouse_down(gpui::MouseButton::Left, |_, window, _| {
+                                    window.start_window_move();
+                                })
+                            })
                             .child(img(self.app_icon.clone()).size_16().flex_none())
                             .child(Headline::new(self.message.clone()))
                             .when_some(self.commit.clone(), |this, commit| {
@@ -1725,6 +1733,10 @@ fn open_about_window(cx: &mut App) {
                 appears_transparent: true,
                 traffic_light_position: Some(point(px(12.), px(12.))),
             }),
+            macos_borderless: cfg!(target_os = "macos")
+                && WorkspaceSettings::get_global(cx).hide_window_decorations,
+            app_owns_titlebar_drag: cfg!(target_os = "macos")
+                && WorkspaceSettings::get_global(cx).hide_window_decorations,
             window_bounds: Some(WindowBounds::centered(window_size, cx)),
             is_resizable: false,
             is_minimizable: false,

@@ -896,6 +896,10 @@ fn open_settings_editor_with(
                     appears_transparent: true,
                     traffic_light_position: Some(point(px(12.0), px(12.0))),
                 }),
+                macos_borderless: cfg!(target_os = "macos")
+                    && WorkspaceSettings::get_global(cx).hide_window_decorations,
+                app_owns_titlebar_drag: cfg!(target_os = "macos")
+                    && WorkspaceSettings::get_global(cx).hide_window_decorations,
                 focus: true,
                 show: true,
                 is_movable: true,
@@ -1968,7 +1972,7 @@ impl SettingsWindow {
         })
         .detach();
 
-        let title_bar = if !cfg!(target_os = "macos") {
+        let title_bar = if !cfg!(target_os = "macos") || window.is_macos_borderless() {
             Some(cx.new(|cx| PlatformTitleBar::new("settings-title-bar", cx)))
         } else {
             None
@@ -3200,7 +3204,7 @@ impl SettingsWindow {
             .w(SIDEBAR_WIDTH)
             .h_full()
             .p_2p5()
-            .when(cfg!(target_os = "macos"), |this| this.pt_10())
+            .when(cfg!(target_os = "macos") && !window.is_macos_borderless(), |this| this.pt_10())
             .flex_none()
             .border_r_1()
             .border_color(cx.theme().colors().border)
