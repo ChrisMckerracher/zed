@@ -1582,6 +1582,7 @@ impl Window {
             kind,
             is_movable,
             app_owns_titlebar_drag,
+            macos_borderless,
             inactive_frame_interval,
             is_resizable,
             is_minimizable,
@@ -1612,6 +1613,7 @@ impl Window {
                 kind,
                 is_movable,
                 app_owns_titlebar_drag,
+                macos_borderless,
                 is_resizable,
                 is_minimizable,
                 focus,
@@ -3036,6 +3038,11 @@ impl Window {
     pub fn set_window_title(&mut self, title: &str) {
         self.platform_window.set_title(title);
         self.a11y.set_window_title(title.to_string());
+    }
+
+    /// Whether this window uses square, borderless macOS chrome.
+    pub fn is_macos_borderless(&self) -> bool {
+        self.platform_window.is_macos_borderless()
     }
 
     /// Sets the position of the macOS traffic light buttons.

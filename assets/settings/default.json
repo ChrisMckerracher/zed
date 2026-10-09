@@ -275,6 +275,9 @@
   //
   // Default: "client"
   "window_decorations": "client",
+  // Hide the macOS window buttons and use a square, borderless window.
+  // Applies to newly opened windows and disables native window tabs.
+  "hide_window_decorations": false,
   // Whether to optimize Zed's interface for assistive technology such as screen
   // readers.
   "accessible_mode": false,

@@ -45,6 +45,7 @@ pub struct WorkspaceSettings {
     pub fullscreen_mode: settings::FullscreenMode,
     pub zoomed_padding: bool,
     pub window_decorations: settings::WindowDecorations,
+    pub hide_window_decorations: bool,
     pub focus_follows_mouse: FocusFollowsMouse,
 }
 
@@ -150,6 +151,7 @@ impl Settings for WorkspaceSettings {
             fullscreen_mode: workspace.fullscreen_mode.unwrap(),
             zoomed_padding: workspace.zoomed_padding.unwrap(),
             window_decorations: workspace.window_decorations.unwrap(),
+            hide_window_decorations: workspace.hide_window_decorations.unwrap(),
             focus_follows_mouse: FocusFollowsMouse {
                 enabled: workspace
                     .focus_follows_mouse

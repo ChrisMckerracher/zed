@@ -1,5 +1,29 @@
 # Zed
 
+This fork adds optional square, borderless macOS windows on the
+`macos-borderless` branch. Build this branch, then add the following to Zed's
+user settings and reopen the window:
+
+```json
+{
+  "hide_window_decorations": true
+}
+```
+
+This removes the native close, minimize, and fullscreen buttons and macOS's
+rounded window frame, matching Kitty's `hide_window_decorations yes` mode.
+Zed's own title bar remains available for dragging and project controls.
+The default is `false`; native macOS window tabs are disabled in borderless mode.
+Other platforms keep their existing decorations.
+
+Use the command palette or menu for window actions. For fullscreen that keeps
+the current desktop, also set `"fullscreen_mode": "simple"`.
+
+Build instructions are linked below. A development check that uses runtime
+Metal shaders is `cargo check -p zed --features gpui_platform/runtime_shaders`.
+
+---
+
 [![Zed](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zed-industries/zed/main/assets/badge/v0.json)](https://zed.dev)
 [![CI](https://github.com/zed-industries/zed/actions/workflows/run_tests.yml/badge.svg)](https://github.com/zed-industries/zed/actions/workflows/run_tests.yml)
 

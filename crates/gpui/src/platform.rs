@@ -1279,6 +1279,10 @@ pub trait PlatformWindow: HasWindowHandle + HasDisplayHandle {
     fn is_subpixel_rendering_supported(&self) -> bool;
 
     // macOS specific methods
+    fn is_macos_borderless(&self) -> bool {
+        false
+    }
+
     fn get_title(&self) -> String {
         String::new()
     }
@@ -2524,6 +2528,9 @@ pub struct WindowOptions {
     /// Leave this `false` for windows that rely on AppKit's native titlebar dragging.
     pub app_owns_titlebar_drag: bool,
 
+    /// Use a square, borderless window without native controls (macOS only).
+    pub macos_borderless: bool,
+
     /// The minimum interval between animation frames while the window is inactive.
     ///
     /// Set to `None` to disable inactive-window animation frame throttling.
@@ -2590,6 +2597,9 @@ pub struct WindowParams {
         allow(dead_code)
     )]
     pub app_owns_titlebar_drag: bool,
+
+    /// Use a square, borderless window without native controls (macOS only).
+    pub macos_borderless: bool,
 
     /// Whether the window should be resizable by the user
     #[cfg_attr(any(target_os = "linux", target_os = "freebsd"), allow(dead_code))]
@@ -2673,6 +2683,7 @@ impl Default for WindowOptions {
             kind: WindowKind::Normal,
             is_movable: true,
             app_owns_titlebar_drag: false,
+            macos_borderless: false,
             inactive_frame_interval: Some(Duration::from_micros(33_333)),
             is_resizable: true,
             is_minimizable: true,

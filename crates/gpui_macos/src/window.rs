@@ -683,6 +683,7 @@ struct MacWindowState {
     last_key_equivalent: Option<KeyDownEvent>,
     last_left_mouse_down_event: Option<Retained<Objc2Object>>,
     synthetic_drag_counter: usize,
+    macos_borderless: bool,
     traffic_light_position: Option<Point<Pixels>>,
     traffic_light_frames: Option<TrafficLightFrames>,
     pre_fullscreen_traffic_light_frames: Option<TrafficLightFrames>,
@@ -715,6 +716,20 @@ struct MacWindowState {
 
 impl MacWindowState {
     fn move_traffic_light(&mut self) {
+        if self.macos_borderless {
+            // AppKit can recreate standard buttons during fullscreen transitions.
+            let window = unsafe { &*self.native_window.cast::<Objc2NSWindow>() };
+            for button in [
+                Objc2NSWindowButton::CloseButton,
+                Objc2NSWindowButton::MiniaturizeButton,
+                Objc2NSWindowButton::ZoomButton,
+            ] {
+                if let Some(button) = window.standardWindowButton(button) {
+                    button.setHidden(true);
+                }
+            }
+            return;
+        }
         if let Some(traffic_light_position) = self.traffic_light_position {
             if self.is_fullscreen() && !self.is_exiting_fullscreen {
                 self.restore_traffic_light();
@@ -965,6 +980,7 @@ impl MacWindow {
             kind,
             is_movable,
             app_owns_titlebar_drag,
+            macos_borderless,
             is_resizable,
             is_minimizable,
             focus,
@@ -1009,6 +1025,18 @@ impl MacWindow {
             } else {
                 style_mask = NSWindowStyleMask::NSTitledWindowMask
                     | NSWindowStyleMask::NSFullSizeContentViewWindowMask;
+            }
+
+            if macos_borderless {
+                // Omitting NSTitledWindowMask removes the system corner clipping
+                // and all native titlebar chrome, as in Kitty's borderless mode.
+                style_mask = NSWindowStyleMask::NSBorderlessWindowMask;
+                if is_resizable {
+                    style_mask |= NSWindowStyleMask::NSResizableWindowMask;
+                }
+                if is_minimizable {
+                    style_mask |= NSWindowStyleMask::NSMiniaturizableWindowMask;
+                }
             }
 
             let native_window: id = match kind {
@@ -1073,6 +1101,12 @@ impl MacWindow {
                 target_screen,
             );
             assert!(!native_window.is_null());
+            if macos_borderless {
+                native_window.setCollectionBehavior_(
+                    NSWindowCollectionBehavior::NSWindowCollectionBehaviorFullScreenPrimary,
+                );
+                let _: () = msg_send![native_window, setTabbingMode: 2u64]; // NSWindowTabbingModeDisallowed
+            }
             let () = msg_send![
                 native_window,
                 registerForDraggedTypes:
@@ -1121,6 +1155,7 @@ impl MacWindow {
                 last_key_equivalent: None,
                 last_left_mouse_down_event: None,
                 synthetic_drag_counter: 0,
+                macos_borderless,
                 traffic_light_position: titlebar
                     .as_ref()
                     .and_then(|titlebar| titlebar.traffic_light_position),
@@ -1620,6 +1655,10 @@ impl PlatformWindow for MacWindow {
             }
             let _: () = msg_send![unarchiver, release];
         }
+    }
+
+    fn is_macos_borderless(&self) -> bool {
+        self.0.lock().macos_borderless
     }
 
     fn set_traffic_light_position(&self, position: Point<Pixels>) {

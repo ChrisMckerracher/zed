@@ -169,6 +169,12 @@ pub struct WorkspaceSettingsContent {
     ///
     /// Default: client
     pub window_decorations: Option<WindowDecorations>,
+    /// Hide the native window decorations on macOS, including all three window
+    /// buttons and rounded corners. Takes effect for newly opened windows.
+    /// Native window tabs are disabled while this is enabled.
+    ///
+    /// Default: false
+    pub hide_window_decorations: Option<bool>,
     /// Whether the focused panel follows the mouse location
     /// Default: false
     pub focus_follows_mouse: Option<FocusFollowsMouse>,

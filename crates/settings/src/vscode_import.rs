@@ -1096,6 +1096,7 @@ impl VsCodeSettings {
             reveal_if_open: self.read_bool("workbench.editor.revealIfOpen"),
             restore_on_startup: None,
             window_decorations: None,
+            hide_window_decorations: None,
             show_call_status_icon: None,
             use_system_path_prompts: self.read_bool("files.simpleDialog.enable").map(|b| !b),
             use_system_prompts: None,
