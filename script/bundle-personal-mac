@@ -13,10 +13,13 @@ base_version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$
 for binary in zed cli; do
     [[ -x "target/release-fast/$binary" ]] || { echo "Build zed and cli first" >&2; exit 1; }
 done
-mkdir -p "$(dirname "$output_app")"
-ditto "$base_app" "$output_app"
+# Construct a fresh local bundle rather than copying download/signing metadata.
+mkdir -p "$output_app/Contents/MacOS"
+ditto --noqtn --norsrc "$base_app/Contents/Resources" "$output_app/Contents/Resources"
+cp -X "$base_app/Contents/Info.plist" "$output_app/Contents/Info.plist"
+cp -X "$base_app/Contents/MacOS/git" "$output_app/Contents/MacOS/git"
 for binary in zed cli; do
-    cp "target/release-fast/$binary" "$output_app/Contents/MacOS/$binary"
+    cp -X "target/release-fast/$binary" "$output_app/Contents/MacOS/$binary"
     strip -S "$output_app/Contents/MacOS/$binary"
 done
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(date +%Y%m%d.%H%M%S)" "$output_app/Contents/Info.plist"
