@@ -373,7 +373,10 @@ pub fn build_window_options(display_uuid: Option<Uuid>, cx: &mut App) -> WindowO
         },
     };
 
-    let use_system_window_tabs = WorkspaceSettings::get_global(cx).use_system_window_tabs;
+    let macos_borderless =
+        cfg!(target_os = "macos") && WorkspaceSettings::get_global(cx).hide_window_decorations;
+    let use_system_window_tabs =
+        WorkspaceSettings::get_global(cx).use_system_window_tabs && !macos_borderless;
 
     #[cfg(any(target_os = "linux", target_os = "freebsd"))]
     static APP_ICON: std::sync::LazyLock<Option<std::sync::Arc<image::RgbaImage>>> =
@@ -407,6 +410,7 @@ pub fn build_window_options(display_uuid: Option<Uuid>, cx: &mut App) -> WindowO
         // keeping the window movable and the Window-menu tiling items enabled. No-op on
         // other platforms.
         app_owns_titlebar_drag: true,
+        macos_borderless,
         display_id: display.map(|display| display.id()),
         window_background: cx.theme().window_background_appearance(),
         app_id: Some(app_id.to_owned()),
